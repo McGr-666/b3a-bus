@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B3A · 富泰邨 ⇄ 深圳灣口岸</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --panel-2: #1c2330;
+    --line: #2a3240;
+    --text: #eef2f7;
+    --muted: #8b97a8;
+    --accent: #ffd23f;
+    --green: #3ddc84;
+    --red: #ff6b6b;
+    --blue: #6fb3ff;
+  }
+  * { box-sizing: border-box; }
+  html, body { min-height: 100%; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 20px;
+    background:
+      radial-gradient(1100px 600px at 50% -10%, #1b2a3a 0%, transparent 60%),
+      var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang HK",
+      "Hiragino Sans", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .card {
+    width: 100%;
+    max-width: 720px;
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .45);
+    overflow: hidden;
+  }
+
+  /* ---------- header ---------- */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--line);
+  }
+  .route-no {
+    flex: none;
+    display: grid;
+    place-items: center;
+    min-width: 76px;
+    height: 52px;
+    padding: 0 12px;
+    border-radius: 12px;
+    background: var(--accent);
+    color: #1a1503;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: .5px;
+  }
+  .titles { min-width: 0; }
+  .titles .en {
+    font-size: 17px;
+    font-weight: 650;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .titles .en .arrow { color: var(--muted); font-weight: 400; margin: 0 4px; }
+  .titles .zh {
+    margin-top: 3px;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: .3px;
+  }
+
+  /* ---------- boards ---------- */
+  .board { padding: 8px 24px 4px; }
+  .board + .board { border-top: 1px solid var(--line); }
+
+  .label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    margin: 18px 0 6px;
+    font-size: 11px;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .label-row .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .label-row .tag::before {
+    content: "";
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .board.secondary .label-row .tag::before { background: var(--blue); }
+  .label-row .stop {
+    font-size: 10px;
+    letter-spacing: .8px;
+    opacity: .8;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .next {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    padding: 6px 0 22px;
+    border-bottom: 1px solid var(--line);
+  }
+  .next .num {
+    font-size: clamp(84px, 22vw, 132px);
+    font-weight: 800;
+    line-height: .86;
+    letter-spacing: -4px;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
+    text-shadow: 0 0 40px rgba(255, 210, 63, .18);
+  }
+  .board.secondary .next .num { color: var(--blue); text-shadow: 0 0 40px rgba(111, 179, 255, .16); }
+  .next .num.small { font-size: clamp(40px, 10vw, 58px); letter-spacing: -1px; }
+  .next .unit {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--muted);
+    padding-bottom: 10px;
+  }
+  .next .meta {
+    margin-left: auto;
+    text-align: right;
+    padding-bottom: 10px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .next .meta strong {
+    display: block;
+    font-size: 15px;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
+  .later {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 18px 0 6px;
+  }
+  .slot {
+    background: rgba(255, 255, 255, .035);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 14px 16px;
+    min-height: 96px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .slot .k {
+    font-size: 10px;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .slot .v {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    font-size: 30px;
+    font-weight: 750;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -1px;
+  }
+  .slot .v .u { font-size: 13px; font-weight: 500; color: var(--muted); letter-spacing: 0; }
+  .slot .t {
+    font-size: 12px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .slot.empty .v { color: #56606f; font-size: 22px; letter-spacing: 0; }
+
+  .board-note {
+    display: none;
+    margin: 0 0 6px;
+    font-size: 12px;
+    color: var(--red);
+  }
+  .board-note.show { display: block; }
+
+  /* ---------- footer ---------- */
+  footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 24px 18px;
+    border-top: 1px solid var(--line);
+    margin-top: 18px;
+    font-size: 12px;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 0 3px rgba(61, 220, 132, .12);
+    flex: none;
+  }
+  .dot.busy { background: var(--accent); box-shadow: 0 0 0 3px rgba(255, 210, 63, .12); animation: pulse 1s infinite; }
+  .dot.err { background: var(--red); box-shadow: 0 0 0 3px rgba(255, 107, 107, .12); }
+  @keyframes pulse { 50% { opacity: .35; } }
+
+  footer .spacer { flex: 1; }
+  button {
+    font: inherit;
+    font-size: 12px;
+    color: var(--text);
+    background: rgba(255, 255, 255, .06);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background .15s, border-color .15s;
+  }
+  button:hover { background: rgba(255, 255, 255, .11); border-color: #3b4657; }
+  button:active { transform: translateY(1px); }
+  button:disabled { opacity: .5; cursor: default; }
+
+  #error {
+    display: none;
+    margin: 0 24px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255, 107, 107, .1);
+    border: 1px solid rgba(255, 107, 107, .35);
+    color: #ffb3b3;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+  #error.show { display: block; }
+
+  @media (max-width: 460px) {
+    header { padding: 18px; gap: 12px; }
+    .route-no { min-width: 62px; height: 44px; font-size: 21px; }
+    .board { padding: 8px 18px 4px; }
+    footer, #error { padding-left: 18px; padding-right: 18px; }
+    #error { margin-left: 18px; margin-right: 18px; }
+    .next .meta { display: none; }
+    .label-row .stop { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="card">
+  <header>
+    <div class="route-no">B3A</div>
+    <div class="titles">
+      <div class="en">Fu Tai Estate <span class="arrow">⇄</span> Shenzhen Bay Port</div>
+      <div class="zh">富泰邨 ⇄ 深圳灣口岸 · 城巴 Citybus</div>
+    </div>
+  </header>
+
+  <!-- Fu Tai Estate → Shenzhen Bay Port -->
+  <section class="board" id="board-out">
+    <div class="label-row">
+      <span class="tag">To Shenzhen Bay Port · 往深圳灣口岸</span>
+      <span class="stop">富泰邨, 青山公路 · 003261</span>
+    </div>
+    <div class="next">
+      <div class="num" data-num>–</div>
+      <div class="unit" data-unit>min</div>
+      <div class="meta">
+        <strong data-clock>--:--</strong>
+        <span data-note>scheduled arrival</span>
+      </div>
+    </div>
+    <div class="later">
+      <div class="slot" data-slot="2">
+        <div class="k">Following</div>
+        <div class="v"><span data-v>–</span><span class="u" data-u>min</span></div>
+        <div class="t" data-t>—</div>
+      </div>
+      <div class="slot" data-slot="3">
+        <div class="k">Then</div>
+        <div class="v"><span data-v>–</span><span class="u" data-u>min</span></div>
+        <div class="t" data-t>—</div>
+      </div>
+    </div>
+    <p class="board-note" data-err></p>
+  </section>
+
+  <!-- Shenzhen Bay Port → Fu Tai Estate -->
+  <section class="board secondary" id="board-ret">
+    <div class="label-row">
+      <span class="tag">To Fu Tai Estate · 往富泰邨</span>
+      <span class="stop">富泰購物中心, 青山公路 · 003262</span>
+    </div>
+    <div class="next">
+      <div class="num" data-num>–</div>
+      <div class="unit" data-unit>min</div>
+      <div class="meta">
+        <strong data-clock>--:--</strong>
+        <span data-note>scheduled arrival</span>
+      </div>
+    </div>
+    <div class="later">
+      <div class="slot" data-slot="2">
+        <div class="k">Following</div>
+        <div class="v"><span data-v>–</span><span class="u" data-u>min</span></div>
+        <div class="t" data-t>—</div>
+      </div>
+      <div class="slot" data-slot="3">
+        <div class="k">Then</div>
+        <div class="v"><span data-v>–</span><span class="u" data-u>min</span></div>
+        <div class="t" data-t>—</div>
+      </div>
+    </div>
+    <p class="board-note" data-err></p>
+  </section>
+
+  <div id="error" role="alert"></div>
+
+  <footer>
+    <span class="dot" id="dot"></span>
+    <span id="status">Loading…</span>
+    <span class="spacer"></span>
+    <span id="countdown">30s</span>
+    <button id="refresh" type="button">Refresh</button>
+  </footer>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  // Citybus (CTB) open data — DATA.GOV.HK "Real-time Next Bus" dataset, v2 API.
+  const API = "https://rt.data.gov.hk/v2/transport/citybus/eta/CTB";
+  const INTERVAL = 30; // seconds
+
+  const BOARDS = {
+    out: {
+      el: document.getElementById("board-out"),
+      stop: "003261",              // Fu Tai Estate, Castle Peak Road
+      dir: "O",                    // outbound → Shenzhen Bay Port
+      label: "Fu Tai Estate → Shenzhen Bay Port",
+    },
+    ret: {
+      el: document.getElementById("board-ret"),
+      stop: "003262",              // Fu Tai Shopping Centre, Castle Peak Road
+      dir: "I",                    // inbound → Fu Tai Estate
+      label: "Shenzhen Bay Port → Fu Tai Estate",
+    },
+  };
+
+  const pad = (n) => String(n).padStart(2, "0");
+
+  const ui = {
+    status: document.getElementById("status"),
+    countdown: document.getElementById("countdown"),
+    dot: document.getElementById("dot"),
+    error: document.getElementById("error"),
+    refresh: document.getElementById("refresh"),
+  };
+
+  const state = {
+    out: { etas: null, error: null, updated: null },
+    ret: { etas: null, error: null, updated: null },
+  };
+
+  let loading = false;
+  let secondsLeft = INTERVAL;
+  let lastTick = Date.now();
+
+  const hkTime = (d) =>
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Hong_Kong",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(d);
+
+  function minutesUntil(iso, now) {
+    const t = new Date(iso).getTime();
+    if (!Number.isFinite(t)) return null;
+    return Math.round((t - now) / 60000);
+  }
+
+  function describe(mins) {
+    if (mins === null) return { value: "–", unit: "min" };
+    if (mins <= 0) return { value: "Now", unit: "" };
+    if (mins === 1) return { value: "1", unit: "min" };
+    return { value: String(mins), unit: "min" };
+  }
+
+  function setSlot(slotEl, eta, now) {
+    const v = slotEl.querySelector("[data-v]");
+    const u = slotEl.querySelector("[data-u]");
+    const t = slotEl.querySelector("[data-t]");
+
+    if (!eta) {
+      slotEl.classList.add("empty");
+      v.textContent = "No ETA";
+      u.textContent = "";
+      t.textContent = "—";
+      return;
+    }
+
+    slotEl.classList.remove("empty");
+    const d = describe(minutesUntil(eta.eta, now));
+    v.textContent = d.value;
+    u.textContent = d.unit;
+
+    const remark = (eta.rmk_en || "").trim();
+    t.textContent = hkTime(new Date(eta.eta)) + (remark ? " · " + remark : "");
+  }
+
+  function renderBoard(key) {
+    const cfg = BOARDS[key];
+    const s = state[key];
+    const root = cfg.el;
+
+    const num = root.querySelector("[data-num]");
+    const unit = root.querySelector("[data-unit]");
+    const clock = root.querySelector("[data-clock]");
+    const note = root.querySelector("[data-note]");
+    const slot2 = root.querySelector('[data-slot="2"]');
+    const slot3 = root.querySelector('[data-slot="3"]');
+    const err = root.querySelector("[data-err]");
+
+    err.classList.toggle("show", Boolean(s.error));
+    if (s.error) err.textContent = s.error;
+
+    if (!s.etas) {
+      num.textContent = "–";
+      unit.textContent = "min";
+      clock.textContent = "--:--";
+      note.textContent = s.error ? "no data" : "loading…";
+      setSlot(slot2, null);
+      setSlot(slot3, null);
+      return;
+    }
+
+    const now = Date.now();
+    const seen = new Set();
+    const buses = s.etas
+      .filter((e) => e.dir === cfg.dir && e.stop === cfg.stop && e.eta)
+      .map((e) => ({ ...e, mins: minutesUntil(e.eta, now) }))
+      .filter((e) => e.mins !== null)
+      // the inbound stop is listed twice in the route-stop feed (seq 2 and 3),
+      // which can return the same arrival twice — keep one per timestamp.
+      .filter((e) => (seen.has(e.eta) ? false : seen.add(e.eta)))
+      .sort((a, b) => a.mins - b.mins);
+
+    const first = buses[0];
+
+    if (!first) {
+      num.textContent = "–";
+      num.classList.add("small");
+      unit.textContent = "no ETA";
+      clock.textContent = "--:--";
+      note.textContent = "no live prediction";
+    } else {
+      const d = describe(first.mins);
+      num.textContent = d.value;
+      num.classList.toggle("small", d.value.length > 3);
+      unit.textContent = d.unit;
+      clock.textContent = hkTime(new Date(first.eta));
+      const remark = (first.rmk_en || "").trim();
+      note.textContent = remark ? remark : "predicted arrival";
+    }
+
+    setSlot(slot2, buses[1], now);
+    setSlot(slot3, buses[2], now);
+  }
+
+  function render() {
+    renderBoard("out");
+    renderBoard("ret");
+  }
+
+  function setBusy(isBusy) {
+    ui.dot.className = "dot" + (isBusy ? " busy" : "");
+    ui.refresh.disabled = isBusy;
+  }
+
+  async function fetchBoard(key) {
+    const cfg = BOARDS[key];
+    const url =
+      API + "/" + cfg.stop + "/B3A" + (API.includes("?") ? "&" : "?") + "t=" + Date.now();
+
+    try {
+      const res = await fetch(url, {
+        cache: "no-store",
+        headers: { Accept: "application/json" },
+      });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+
+      const json = await res.json();
+      if (!json || json.type !== "ETA" || !Array.isArray(json.data)) {
+        throw new Error("Unexpected response");
+      }
+
+      state[key] = { etas: json.data, error: null, updated: new Date() };
+    } catch (err) {
+      state[key] = {
+        etas: state[key].etas, // keep last good data on screen
+        error:
+          "Couldn't load " + cfg.label + " (" +
+          (err && err.message ? err.message : "network error") + ").",
+        updated: state[key].updated,
+      };
+    }
+  }
+
+  async function load() {
+    if (loading) return;
+    loading = true;
+    setBusy(true);
+    if (!state.out.updated && !state.ret.updated) ui.status.textContent = "Fetching…";
+
+    await Promise.all([fetchBoard("out"), fetchBoard("ret")]);
+
+    const failed = ["out", "ret"].filter((k) => state[k].error);
+    const times = ["out", "ret"]
+      .map((k) => state[k].updated)
+      .filter(Boolean)
+      .sort((a, b) => b - a);
+
+    if (failed.length) {
+      ui.dot.className = "dot err";
+      ui.status.textContent = failed.length === 2
+        ? "Update failed — retrying"
+        : "Partial update — one direction failed";
+      ui.error.textContent =
+        "Citybus ETA service unavailable for " +
+        failed.map((k) => BOARDS[k].label).join(" and ") +
+        ". Retrying every 30 seconds.";
+      ui.error.classList.add("show");
+    } else {
+      ui.dot.className = "dot";
+      ui.status.textContent = times.length
+        ? "Live · updated " + hkTime(times[0])
+        : "Waiting for data";
+      ui.error.classList.remove("show");
+    }
+
+    render();
+
+    loading = false;
+    setBusy(false);
+    secondsLeft = INTERVAL;
+    lastTick = Date.now();
+    updateCountdown();
+  }
+
+  function updateCountdown() {
+    ui.countdown.textContent = secondsLeft + "s";
+  }
+
+  function tick() {
+    const now = Date.now();
+    const elapsed = Math.floor((now - lastTick) / 1000);
+    if (elapsed > 0) {
+      lastTick += elapsed * 1000;
+      secondsLeft = Math.max(0, secondsLeft - elapsed);
+    }
+
+    updateCountdown();
+    render(); // re-derive minute values as time passes
+
+    if (secondsLeft <= 0) load();
+  }
+
+  ui.refresh.addEventListener("click", () => {
+    secondsLeft = INTERVAL;
+    lastTick = Date.now();
+    load();
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState !== "visible") return;
+    const newest = Math.max(
+      state.out.updated ? state.out.updated.getTime() : 0,
+      state.ret.updated ? state.ret.updated.getTime() : 0
+    );
+    if (!newest || Date.now() - newest > INTERVAL * 1000) {
+      secondsLeft = INTERVAL;
+      lastTick = Date.now();
+      load();
+    }
+  });
+
+  load();
+  setInterval(tick, 1000);
+})();
+</script>
+</body>
+</html>
